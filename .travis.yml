@@ -34,7 +34,7 @@ after_script:
 
 branches:
   only:
-    - master  #只监测master分支，可根据自己情况设置
+    - save  #只监测master分支，可根据自己情况设置
 env:
  global:
    - GH_REF: github.com/jokerbj/blog.git  #设置GH_REF，注意更改yourname
