@@ -2,7 +2,7 @@
 # GIT全局配置
 git config user.name "jokerbj"
 git config user.email "849185108@qq.com"
-# 进入通过HEXO G遍历主题下的SOURCE目录，即CSS/FOND/JS，建立索引把主题文件生成到的PUBLIC中，即HTML，网页跟目录
+# 进入通过HEXO G遍历主题下的SOURCE目录，即CSS/FOND/JS，建立索引把主题文件生成到的PUBLIC中，即HTML，网页根目录
 cd public
 # 初始化GIT
 git init
