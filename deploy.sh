@@ -6,6 +6,8 @@ git config user.email "849185108@qq.com"
 cd public
 # 初始化GIT
 git init
+# 添加域名
+echo 'hexo.jplove.top' > CANME
 # 添加所有文件
 git add .
 # 提交
