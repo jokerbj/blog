@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="MySQL,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Python之路 - MySQL存储引擎介绍  🍀插件式存储引擎是MySQL数据库最重要的特性之一 , 用户可以根据应用的需要选择如何存储和索引数据 , 是否使用实务等 , MySQL默认支持多种存储引擎(表类型) , 用户还可以按照自己的需要定制和使用自己的存储引擎 MySQL 5.0支持的存储引擎包括MyISAM , InnoDB , BDB , MEMORY , MERGE , EXAMP">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL3">
+<meta property="og:url" content="http://hexo.jplove.top/2019/02/13/03-Python之路 - MySQL之存储引擎/index.html">
+<meta property="og:site_name" content="Joker&#39;s blog">
+<meta property="og:description" content="Python之路 - MySQL存储引擎介绍  🍀插件式存储引擎是MySQL数据库最重要的特性之一 , 用户可以根据应用的需要选择如何存储和索引数据 , 是否使用实务等 , MySQL默认支持多种存储引擎(表类型) , 用户还可以按照自己的需要定制和使用自己的存储引擎 MySQL 5.0支持的存储引擎包括MyISAM , InnoDB , BDB , MEMORY , MERGE , EXAMP">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-02-13T05:29:26.257Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL3">
+<meta name="twitter:description" content="Python之路 - MySQL存储引擎介绍  🍀插件式存储引擎是MySQL数据库最重要的特性之一 , 用户可以根据应用的需要选择如何存储和索引数据 , 是否使用实务等 , MySQL默认支持多种存储引擎(表类型) , 用户还可以按照自己的需要定制和使用自己的存储引擎 MySQL 5.0支持的存储引擎包括MyISAM , InnoDB , BDB , MEMORY , MERGE , EXAMP">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://hexo.jplove.top/2019/02/13/03-Python之路 - MySQL之存储引擎/">
+
+
+
+
+
+  <title>MySQL3 | Joker's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Joker's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Joker的博客小站(Github托管)</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://hexo.jplove.top/2019/02/13/03-Python之路 - MySQL之存储引擎/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Joker">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joker's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MySQL3</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-13T13:29:26+08:00">
+                2019-02-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  字
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  分钟
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Python之路-MySQL存储引擎"><a href="#Python之路-MySQL存储引擎" class="headerlink" title="Python之路 - MySQL存储引擎"></a>Python之路 - MySQL存储引擎</h1><h2 id="介绍-🍀"><a href="#介绍-🍀" class="headerlink" title="介绍  🍀"></a>介绍  🍀</h2><p>插件式存储引擎是MySQL数据库最重要的特性之一 , 用户可以根据应用的需要选择如何存储和索引数据 , 是否使用实务等 , MySQL默认支持多种<strong>存储引擎(表类型)</strong> , 用户还可以按照自己的需要定制和使用自己的存储引擎</p>
+<p>MySQL 5.0支持的存储引擎包括MyISAM , InnoDB , BDB , MEMORY , MERGE , EXAMPLE , NDB Cluster , ARCHIVE , CSV , BLACKHOLE 等 , 其中InnoDB 和 BDB提供事物安全表 , 其他存储引擎都是非安全事物安全表</p>
+<p>创建新表时如果不指定存储引擎 , 那么系统就会使用默认存储引擎 , MySQL 5.5 之前的默认存储引擎是<code>MyISAM</code>  , 5.5 之后改为了<code>InnoDB</code> , 如果修改默认的存储引擎 , 可以在参数文件中红设置 default-table-type </p>
+<p>查看当前默认存储引擎 , 可以使用以下命令 : </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOW VARIABLES LIKE &apos;table_type&apos;;</span><br></pre></td></tr></table></figure>
+<p>查询当前数据库支持的存储引擎 , 可以使用一下命令 : </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-- 第一种方法</span><br><span class="line">SHOW ENGINES \G</span><br><span class="line">-- 第二种方法</span><br><span class="line">SHOW VARIABLES LIKE &apos;have%&apos;;</span><br></pre></td></tr></table></figure>
+<p>常用存储引擎对比</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">特点</th>
+<th style="text-align:center">MyISAM</th>
+<th style="text-align:center">InnoDB</th>
+<th style="text-align:center">MEMORT</th>
+<th style="text-align:center">MERGE</th>
+<th style="text-align:center">NDB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">存储限制</td>
+<td style="text-align:center">有</td>
+<td style="text-align:center">64TB</td>
+<td style="text-align:center">有</td>
+<td style="text-align:center">没有</td>
+<td style="text-align:center">有</td>
+</tr>
+<tr>
+<td style="text-align:center">事物安全</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">锁机制</td>
+<td style="text-align:center">表锁</td>
+<td style="text-align:center">行锁</td>
+<td style="text-align:center">表锁</td>
+<td style="text-align:center">表锁</td>
+<td style="text-align:center">行锁</td>
+</tr>
+<tr>
+<td style="text-align:center">B树索引</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center">支持</td>
+</tr>
+<tr>
+<td style="text-align:center">哈希索引</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">支持</td>
+</tr>
+<tr>
+<td style="text-align:center">全文索引</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">集群索引</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">数据缓存</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">支持</td>
+</tr>
+<tr>
+<td style="text-align:center">索引缓存</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center">支持</td>
+</tr>
+<tr>
+<td style="text-align:center">数据可压缩</td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">空间使用</td>
+<td style="text-align:center">低</td>
+<td style="text-align:center">高</td>
+<td style="text-align:center">N/A</td>
+<td style="text-align:center">低</td>
+<td style="text-align:center">低</td>
+</tr>
+<tr>
+<td style="text-align:center">内存使用</td>
+<td style="text-align:center">低</td>
+<td style="text-align:center">高</td>
+<td style="text-align:center">中等</td>
+<td style="text-align:center">低</td>
+<td style="text-align:center">高</td>
+</tr>
+<tr>
+<td style="text-align:center">批量插入的速度</td>
+<td style="text-align:center">高</td>
+<td style="text-align:center">低</td>
+<td style="text-align:center">高</td>
+<td style="text-align:center">高</td>
+<td style="text-align:center">高</td>
+</tr>
+<tr>
+<td style="text-align:center">支持外键</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">支持</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+</tbody>
+</table>
+<p>下面重点介绍最常使用的4中存储引擎 : MyISAM , InnoDB , MEMORY 和 MERGE</p>
+<h2 id="MyISAM-🍀"><a href="#MyISAM-🍀" class="headerlink" title="MyISAM  🍀"></a>MyISAM  🍀</h2><p>MyISAM<strong>不支持事务</strong> , 也不支持外键 , 其优势是访问的速度快 , 对事务完整性没有要求或者以SELECT , INSERT为主的应用基本上都可以使用这个引擎来创建表</p>
+<p>每个MyISAM在磁盘上存储成3个文件 , 其文件名都和表明相同 , 但扩展名分别是<code>.frm(存储表定义)</code> , <code>.MYD(MYDate , 存储数据)</code>  , <code>.MYI(MYIndex , 存储索引)</code>  ; MyISAM的表还支持3种不同的存储格式 , 分别是 : 静态表(固定长度) , 动态表 , 压缩表</p>
+<p>数据文件和索引文件可以放置在不同的目录 , 平局分布IO , 获得更快的速度 ; 不同MyISAM表的索引文件和数据文件可以放置到不同的路经下 , 文件路经要是绝对路经 , 并且具有访问权限</p>
+<p>MyISAM类型的表可能会损坏 , 原因可能是多种多样的 , 损坏后的表可能不能被访问 , 会提示需要修复或者访问返回错误的结果 ; MyISAM类型的表提供修复的工具 , 可以用<code>CHECK TABLE</code>语句来检查MyISAM表的健康 , 并用REPAIR TABLE语句修复一个损坏的MyISAM表 .</p>
+<p>MyISAM另一个与众不同的地方是 , 它的<strong>缓冲池只缓存(cache)索引文件</strong> <strong>, 而不缓存数据文件</strong> , 这与大多数的数据库都不相同</p>
+<h2 id="InnoDB-🍀"><a href="#InnoDB-🍀" class="headerlink" title="InnoDB  🍀"></a>InnoDB  🍀</h2><p>InnoDB存储引擎提供了具有提交 , 回滚和崩溃恢复能力的事务安全 , 但是对比MyISAM , InnoDB写的处理效率差一些 , 并且会占用更多的磁盘空间以保留数据和索引</p>
+<p>InnoDB是MySQL数据库最为常用的存储引擎 , 其不同于其他存储引擎的表的特点如下</p>
+<h3 id="自动增长列-🍀"><a href="#自动增长列-🍀" class="headerlink" title="自动增长列  🍀"></a>自动增长列  🍀</h3><p>InnoDB表的自增列可以手工插入 , 但是插入的值如果是空或者0 , 则实际插入的将是自动增长后的值</p>
+<p>自增实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; USE mydatabase;</span><br><span class="line">Database changed</span><br><span class="line">mysql&gt; CREATE TABLE autoincre_demo(</span><br><span class="line">    -&gt; id int NOT NULL AUTO_INCREMENT,  -- 设置id列自增</span><br><span class="line">    -&gt; name varchar(10),</span><br><span class="line">    -&gt; PRIMARY KEY(id)  -- 将id列设为主键</span><br><span class="line">    -&gt; )ENGINE=InnoDB;</span><br><span class="line">Query OK, 0 rows affected (0.28 sec)</span><br><span class="line">/* 插入数据 */</span><br><span class="line">mysql&gt; INSERT INTO autoincre_demo VALUES(1,&apos;lyon&apos;),(0,&apos;leon&apos;),(NULL,&apos;kenneth&apos;);</span><br><span class="line">Query OK, 3 rows affected (0.11 sec)</span><br><span class="line">Records: 3  Duplicates: 0  Warnings: 0</span><br><span class="line">/* 查看表 */</span><br><span class="line">mysql&gt; SELECT * FROM autoincre_demo;</span><br><span class="line">+----+---------+</span><br><span class="line">| id | name    |</span><br><span class="line">+----+---------+</span><br><span class="line">|  1 | lyon    |</span><br><span class="line">|  2 | leon    |</span><br><span class="line">|  3 | kenneth |</span><br><span class="line">+----+---------+</span><br><span class="line">3 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<p>PS : 可以通过<code>ALTER TABLE *** AUTO_INCREMENT = n;</code> 语句强制设置自动增长列的初始值 , 默认从1开始 , 但是该强制的默认值是保留在内存中的 , 如果该值在使用之前数据库重新启动 , 那么这个强制的默认值就会丢失 , 就需要在数据库启动以后重新设置</p>
+<p>可以使用<code>LAST_INSERT_ID()</code> 查询当前线程最后插入记录使用的值 , 如果一次插入多条记录 , 则返回第一条记录使用的自动增长值</p>
+<p>LAST_INSERT_ID()实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">/* 从1开始,所以自增值为2 */</span><br><span class="line">mysql&gt; SELECT LAST_INSERT_ID();</span><br><span class="line">+------------------+</span><br><span class="line">| LAST_INSERT_ID() |</span><br><span class="line">+------------------+</span><br><span class="line">|                2 |</span><br><span class="line">+------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line">/* 再插3条 */</span><br><span class="line">mysql&gt; INSERT INTO autoincre_demo(name) VALUES(&apos;FIVE&apos;),(&apos;SIX&apos;),(&apos;SEVEN&apos;);</span><br><span class="line">Query OK, 3 rows affected (0.12 sec)</span><br><span class="line">Records: 3  Duplicates: 0  Warnings: 0</span><br><span class="line">/* 默认开始有3条,所以自增值为5 */</span><br><span class="line">mysql&gt; SELECT LAST_INSERT_ID();</span><br><span class="line">+------------------+</span><br><span class="line">| LAST_INSERT_ID() |</span><br><span class="line">+------------------+</span><br><span class="line">|                5 |</span><br><span class="line">+------------------+</span><br><span class="line">1 row in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<p><strong>对于InnoDB表 , 自动增长列必须是索引(主键) , 如果是组合索引 , 也必须是组合索引的第一列</strong></p>
+<p>但是对于MyISAM表 , 自增列可以是组合索引的其他列</p>
+<h3 id="外键约束-🍀"><a href="#外键约束-🍀" class="headerlink" title="外键约束  🍀"></a>外键约束  🍀</h3><p>MySQL支持外键的存储引擎只有InnoDB , 在创建外键的时候 , 要求父表必须有对应的索引 , 子表在创建外键的时候也会自动创建对应的索引</p>
+<p>实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">/* 创建父表country */</span><br><span class="line">mysql&gt; CREATE TABLE country(</span><br><span class="line">    -&gt; country_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,  -- 创建自增列(索引)</span><br><span class="line">    -&gt; country VARCHAR(50) NOT NULL,</span><br><span class="line">    -&gt; last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- 最后更新时间</span><br><span class="line">    -&gt; PRIMARY KEY (country_id) -- 设置主键索引</span><br><span class="line">    -&gt; )ENGINE=InnoDB DEFAULT CHARSET=utf8;</span><br><span class="line">Query OK, 0 rows affected (0.32 sec)</span><br><span class="line">/* 创建子表city */</span><br><span class="line">mysql&gt; CREATE TABLE city(</span><br><span class="line">    -&gt; city_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,  -- 创建自增列</span><br><span class="line">    -&gt; city VARCHAR(50) NOT NULL,</span><br><span class="line">    -&gt; country_id SMALLINT UNSIGNED NOT NULL,  -- 外键</span><br><span class="line">    -&gt; last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,</span><br><span class="line">    -&gt; PRIMARY KEY (city_id),  -- 设置主键索引</span><br><span class="line">    -&gt; KEY idx_fk_country_id (country_id),</span><br><span class="line">    -&gt; CONSTRAINT fk_city_country FOREIGN KEY (country_id) REFERENCES country (country_id) ON DELETE RESTRICT ON UPDATE CASCADE  -- 设置外键,对应country表的主键country_id</span><br><span class="line">    -&gt; )ENGINE=InnoDB DEFAULT CHARSET=utf8;</span><br><span class="line">Query OK, 0 rows affected (0.40 sec)</span><br></pre></td></tr></table></figure>
+<p>在创建索引时 , 可以指定在删除 , 更新父表时 , 对子表进行的相应操作 , 包括RESTRICT , CASCADE , SET NULL 和 NO ACTION . </p>
+<p>其中<code>RESETRICT</code> 和 <code>NO ACTION</code> 相同 , 是指限制在子表有关联记录的情况下父表不能更新 ; CASCADE表示父表在更新或者删除时 , 更新或者删除子表对应记录 ; </p>
+<p><code>SET NULL</code> 则表示父表在更新或者删除的时候 , 子表的对应字段被设置为NULL</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/* 子表的外键指定是 ON DELETE RESTRICT ON UPDATE CASCADE 方式,即主表删除记录时,如果子表有对应记录,则不允许删除,主表在更新记录时,如果子表有对应记录,则子表对应更新 */</span><br><span class="line">-&gt; CONSTRAINT fk_city_country FOREIGN KEY (country_id) REFERENCES country (country_id) ON DELETE RESTRICT ON UPDATE CASCADE</span><br></pre></td></tr></table></figure>
+<p><strong>当某个表被其他表创建了外键参照 , 那么该表的对应索引或者主键禁止被删除</strong></p>
+<blockquote>
+<p>关闭外键 </p>
+</blockquote>
+<p>在导入多个表的数据时 , 如果需要忽略表之前的导入顺序 , 可以暂时关闭外键的检查 ; 在执行LOAD DATE 和 ALTER TABLE操作的时候 , 可以通过暂时关闭外键约束来加快处理的速度</p>
+<p>关闭命令 : <code>SET FOREIGN_KEY_CHECKS = 0;</code> 打开外键则将0改为1即可</p>
+<blockquote>
+<p>查看外键信息</p>
+</blockquote>
+<p>命令 :  <code>SHOW CREATE TABLE</code>或者<code>SHOW TABLE STATUS</code> </p>
+<p>实例 : </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW TABLE STATUS LIKE &apos;city&apos; \G;</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">           Name: city</span><br><span class="line">         Engine: InnoDB</span><br><span class="line">        Version: 10</span><br><span class="line">     Row_format: Dynamic</span><br><span class="line">           Rows: 0</span><br><span class="line"> Avg_row_length: 0</span><br><span class="line">    Data_length: 16384</span><br><span class="line">Max_data_length: 0</span><br><span class="line">   Index_length: 16384</span><br><span class="line">      Data_free: 0</span><br><span class="line"> Auto_increment: 1</span><br><span class="line">    Create_time: 2017-10-18 17:16:18</span><br><span class="line">    Update_time: NULL</span><br><span class="line">     Check_time: NULL</span><br><span class="line">      Collation: utf8_general_ci</span><br><span class="line">       Checksum: NULL</span><br><span class="line"> Create_options:</span><br><span class="line">        Comment:</span><br><span class="line">1 row in set (0.01 sec)</span><br><span class="line"></span><br><span class="line">ERROR:</span><br><span class="line">No query specified</span><br></pre></td></tr></table></figure>
+<h3 id="存储方式-🍀"><a href="#存储方式-🍀" class="headerlink" title="存储方式  🍀"></a>存储方式  🍀</h3><p>InnoDB存储表和索引有两种方式 : </p>
+<ul>
+<li>使用共享表空间存储</li>
+<li>使用多表空间存储 , 需要设置参数 innodb_file_per_table , 并且重新启动才生效</li>
+</ul>
+<p>对于表中数据的存储 , InnoDB 存储引擎采用了聚集(clustered)的方式 , 每张表都是按主键的顺序进行存储的 , 如果没有显式地在表定义时指定主键 , InnoDB 存储引擎会为每一行生成一个 6 字节的 ROWID , 并以此作为主键</p>
+<p>深入了解InnoDB存储引擎的工作 , 原理 , 实现和应用 , 可以参考《MySQL技术内幕 : InnoDB存储引擎》一书</p>
+<h2 id="MEMORY-🍀"><a href="#MEMORY-🍀" class="headerlink" title="MEMORY  🍀"></a>MEMORY  🍀</h2><p>MEMORY存储引擎使用存在于内存中的内容来创建表</p>
+<p>每个MEMORY表只实际对应一个磁盘文件 , 格式是<code>.frm</code>  , MEMORY类型的表访问非常地快 , 因为它的数据是存放在内存中的 , 并且默认使用HASH索引 , 但是一旦服务关闭 , 表中的数据就会丢失</p>
+<p>给MEMORY创建索引的时候 , 可以指定使用HASH索引还是BTREE索引</p>
+<p>实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE TABLE tab_memory ENGINE=MEMORY</span><br><span class="line">    -&gt;   SELECT city_id,city,country_id</span><br><span class="line">    -&gt;   FROM city GROUP BY city_id;</span><br><span class="line">Query OK, 0 rows affected (0.07 sec)</span><br><span class="line">Records: 0  Duplicates: 0  Warnings: 0</span><br><span class="line"></span><br><span class="line">mysql&gt; CREATE INDEX mem_hash USING HASH ON tab_memory(city_id);</span><br><span class="line">Query OK, 0 rows affected (0.10 sec)</span><br><span class="line">Records: 0  Duplicates: 0  Warnings: 0</span><br><span class="line"></span><br><span class="line">mysql&gt; SHOW INDEX FROM tab_memory \G;</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">        Table: tab_memory</span><br><span class="line">   Non_unique: 1</span><br><span class="line">     Key_name: mem_hash</span><br><span class="line"> Seq_in_index: 1</span><br><span class="line">  Column_name: city_id</span><br><span class="line">    Collation: NULL</span><br><span class="line">  Cardinality: 0</span><br><span class="line">     Sub_part: NULL</span><br><span class="line">       Packed: NULL</span><br><span class="line">         Null:</span><br><span class="line">   Index_type: HASH</span><br><span class="line">      Comment:</span><br><span class="line">Index_comment:</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">ERROR:</span><br><span class="line">No query specified</span><br></pre></td></tr></table></figure>
+<p>服务器需要足够内存来维持所有在同一时间使用的MEMORY表  , 当不再需要MEMOY表的内容之时 , 要释放被MEMORY表使用的内存 , 应该执行DELETE FROM 或TRUNCATE TABLE , 或者整个地删除(使用DROP TABLE操作)</p>
+<p>MEMORY类型的存储引擎主要用于那些内容变化不频繁的代码表 , 或者作为统计操作的中间结果表 , 便于高效地对中间结果进行分析并得到最终的统计结果 ; 对存储引擎为MEMORY的表进行更新操作要谨慎 , 因为数据并没有实际写入到磁盘中 , 所以一定要对下次重新启动服务后如何获得这些修改后的数据有所考虑</p>
+<h2 id="MERGE-🍀"><a href="#MERGE-🍀" class="headerlink" title="MERGE  🍀"></a>MERGE  🍀</h2><p>MERGE存储是一组MyISAM表的组合 , 这些MyISAM表必须结构完全相同 ,  MERGE表本身并没有数据 ,  对MERGE类型的表可以进行查询 , 更新 , 删除操作 , 这些操作实际上是对内部的MyISAM表进行的</p>
+<p>可以对MERGE表进行DROP操作 , 这个操作只是删除MERGE的定义 , 对内部的表没有任何的影响</p>
+<p>通常我们使用MERGE表来透明地对多个表进行查询和更新操作 , 而对按照时间记录的操作日志则可以透明地进行插入操作</p>
+<h2 id="TokuDB-🍀"><a href="#TokuDB-🍀" class="headerlink" title="TokuDB  🍀"></a>TokuDB  🍀</h2><p>前面的都是MySQL自带的存储引擎 , 除了这些之外 , 还有一些常见的第三方存储引擎 , 在某些特定应用中也有广泛使用 , 比如列式存储引擎Infobright , 高写性能高压缩的TokuDB就是其中非常有代表性的两种</p>
+<p>TokuDB是一个高性能 , 支持事务处理的MySQL和MariaDB的存储引擎 , 具有高扩展性 , 高压缩率 , 高效的写入性能 , 支持大多数在线DDL操作 </p>
+<p>主要特性 : </p>
+<ul>
+<li>使用Fractal树索引保证高效的插入性能</li>
+<li>优秀的压缩特性 , 比InnoDB高近10倍</li>
+<li>Hot Schema Changes 特性支持在线创建索引和添加 , 删除属性列等DDL操作</li>
+<li>使用Bulk Loader达到快速加载大量数据</li>
+<li>提供了主从延迟消除技术</li>
+<li>支持ACID和MVCC</li>
+</ul>
+<p>适用场景 : </p>
+<ul>
+<li>日志数据 , 因为日志通常插入频繁切存储量大</li>
+<li>历史数据 , 通常不会再有写操作 , 可以利用TokuDB的高压缩特性进行存储</li>
+<li>在线DDL较频繁的场景 , 使用TokuDB可以大大增加系统的可用性</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/13/04-Python之路 - MySQLxxxx/" rel="next" title="MySQL1">
+                <i class="fa fa-chevron-left"></i> MySQL1
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/02/13/02-Python之路 - MySQL之数据类型/" rel="prev" title="MySQL2">
+                MySQL2 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="Joker">
+            
+              <p class="site-author-name" itemprop="name">Joker</p>
+              <p class="site-description motion-element" itemprop="description">Linux&Python入门群547409659</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/jokerbj/" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.cnblogs.com/jokerbj/" target="_blank" title="Cnblog">
+                      
+                        <i class="fa fa-fw fa-link"></i>Cnblog</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Python之路-MySQL存储引擎"><span class="nav-number">1.</span> <span class="nav-text">Python之路 - MySQL存储引擎</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍-🍀"><span class="nav-number">1.1.</span> <span class="nav-text">介绍  🍀</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MyISAM-🍀"><span class="nav-number">1.2.</span> <span class="nav-text">MyISAM  🍀</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB-🍀"><span class="nav-number">1.3.</span> <span class="nav-text">InnoDB  🍀</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#自动增长列-🍀"><span class="nav-number">1.3.1.</span> <span class="nav-text">自动增长列  🍀</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#外键约束-🍀"><span class="nav-number">1.3.2.</span> <span class="nav-text">外键约束  🍀</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#存储方式-🍀"><span class="nav-number">1.3.3.</span> <span class="nav-text">存储方式  🍀</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MEMORY-🍀"><span class="nav-number">1.4.</span> <span class="nav-text">MEMORY  🍀</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MERGE-🍀"><span class="nav-number">1.5.</span> <span class="nav-text">MERGE  🍀</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TokuDB-🍀"><span class="nav-number">1.6.</span> <span class="nav-text">TokuDB  🍀</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Joker</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
